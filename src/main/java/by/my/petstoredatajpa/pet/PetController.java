@@ -98,10 +98,13 @@ public class PetController {
     @PostMapping(path = "/upd/petID")
     public ResponseEntity<String> updatePetNameById(@RequestParam @Min(0) Long petID, String petName){
         Optional<Pet> petByIdFound = petRepository.findPetById(petID);
+        Optional<Pet> petByIdOldName = petRepository.findPetById(petID);
         if (petByIdFound.isPresent()) {
             petByIdFound.get().setPetName(petName);
-            return new ResponseEntity<>("Pet "+petByIdFound.get()+" was updated", HttpStatus.OK);
+            petRepository.save(petByIdFound.get());
+            return new ResponseEntity<>("Pet's name "+petByIdOldName.get().getPetName()
+                    +" was updated to name "+ petByIdFound.get().getPetName(), HttpStatus.OK);
         }
-        return new ResponseEntity<>("Pet's Name wasn't updated", HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>("Pet's name wasn't updated", HttpStatus.BAD_REQUEST);
     }
 }
