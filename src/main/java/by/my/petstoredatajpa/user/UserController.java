@@ -22,13 +22,13 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<User> create (@RequestBody User user){
+    public ResponseEntity<User> create(@RequestBody User user) {
         User user1 = userRepository.save(user);
         return new ResponseEntity<>(user1, HttpStatus.CREATED);
     }
 
     @PutMapping
-    public ResponseEntity<User> updateUser (@RequestParam ("userName") String name, @RequestBody User user){
+    public ResponseEntity<User> updateUser(@RequestParam("userName") String name, @RequestBody User user) {
         User byUserName = userRepository.findByUserName(name);
         byUserName.setEmail(user.getEmail());
         byUserName.setFirstName(user.getFirstName());
@@ -42,37 +42,49 @@ public class UserController {
     }
 
     @DeleteMapping(path = "/{userID}")
-    public ResponseEntity<String> deleteUser(@PathVariable Long userID){
+    public ResponseEntity<String> deleteUser(@PathVariable Long userID) {
         Optional<User> deleteUserById = userRepository.deleteUserById(userID);
         if (deleteUserById.isPresent()) {
-            return new ResponseEntity<>("User "+deleteUserById.get()+" successfully deleted.", HttpStatus.OK);
+            return new ResponseEntity<>("User " + deleteUserById.get() + " successfully deleted.", HttpStatus.OK);
         }
         return new ResponseEntity<>("User wasn't deleted", HttpStatus.BAD_REQUEST);
     }
 
     @DeleteMapping(path = "/{userName}")
-    public ResponseEntity<String> deleteUser(@PathVariable String userName){
+    public ResponseEntity<String> deleteUser(@PathVariable String userName) {
         Optional<User> deleteUserByUserName = userRepository.deleteUserByUserName(userName);
         if (deleteUserByUserName.isPresent()) {
-            return new ResponseEntity<>("User "+deleteUserByUserName.get()+" successfully deleted.", HttpStatus.OK);
+            return new ResponseEntity<>("User " + deleteUserByUserName.get() + " successfully deleted.", HttpStatus.OK);
         }
         return new ResponseEntity<>("User wasn't deleted", HttpStatus.BAD_REQUEST);
     }
 
     @GetMapping(path = "/login")
     public ResponseEntity<String> login(@RequestParam("userName") String userName,
-                                        @RequestParam("password") String password){
+                                        @RequestParam("password") String password) {
         User byUserName = userRepository.findByUserName(userName);
-        if (byUserName==null) {
+        if (byUserName == null) {
             return new ResponseEntity<>("User name doesn't exists.", HttpStatus.BAD_REQUEST);
         } else {
             if (byUserName.getPassword().equals(password)) {
                 isLogFlag = true;
                 UUID uuid = UUID.randomUUID();
                 uuidList.add(uuid);
-                return new ResponseEntity<>("User successfully logged.",HttpStatus.OK );
+                return new ResponseEntity<>("User successfully logged.", HttpStatus.OK);
             }
             return new ResponseEntity<>("A wrong password.", HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @GetMapping(path = "/logout")
+    public ResponseEntity<String> logout() {
+        UUID uuid = UUID.fromString("");
+        if (uuidList.contains(uuid)) {
+            uuidList.remove(uuid);
+            isLogFlag = false;
+            return new ResponseEntity<>("User was successfully logout.", HttpStatus.OK);
+        }
+        return new ResponseEntity<>("Action denied.", HttpStatus.BAD_REQUEST);
+
     }
 }
